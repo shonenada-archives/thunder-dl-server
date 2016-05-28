@@ -123,16 +123,17 @@ class Thunder(object):
         progress_callback = kwargs.get('progress_callback', None)
         success_callback = kwargs.get('success_callback', None)
         error_callback = kwargs.get('error_callback', None)
+
         if err_id != errors.SUCCESS:
             if error_callback:
                 error_callback(url)
             return False, err_id
+
         return self._polling_for_download(
-            task_id,
-            url,
-            progress_callback,
-            success_callback,
-            error_callback,
+            task_id, url,
+            progress_callback=progress_callback,
+            success_callback=success_callback,
+            error_callback=error_callback,
         )
 
 
@@ -159,10 +160,12 @@ def main():
     thunder = Thunder()
     thunder.init()
 
-    name = url.rsplit('/', 1)
+    name = url.rsplit('/', 1)[-1]
     file_path = os.path.join(SAVE_PATH, name)
     thunder.sync_download(
-        file_path, url,)
+        file_path, url,
+        progress_callback=progress_cb
+    )
 
     thunder.shutdown()
 
