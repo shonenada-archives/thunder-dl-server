@@ -18,12 +18,12 @@ class Thunder(object):
 
     def init(self):
         result = self.thunder.XLInitDownloadEngine()
-        if result != 0:
+        if result == 0:
             raise RuntimeError('Thunder init failed')
 
     def shutdown(self):
         result = self.thunder.XLUninitDownloadEngine()
-        if result != 0:
+        if result == 0:
             raise RuntimeError('Thunder uninit failed')
 
     def get_task_info(self, task_id):
@@ -94,7 +94,6 @@ class Thunder(object):
             elif status == errors.TASK_DOWNLOAD:
                 if progress_callback is not None:
                     progress_callback(url, recv_size, file_size)
-                return True, None
 
             elif status == errors.TASK_SUCCESS:
                 self.stop_task(task_id)
