@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+from threading import Thread
 from ctypes import windll, c_ulong, c_wchar_p, c_long, c_ulonglong, byref
 
 import errors
@@ -126,7 +127,7 @@ class Thunder(object):
 
         if err_id != errors.SUCCESS:
             if error_callback:
-                error_callback(url)
+                error_callback(task_id, url)
             return False, err_id
 
         return self._polling_for_download(
@@ -135,6 +136,26 @@ class Thunder(object):
             success_callback=success_callback,
             error_callback=error_callback,
         )
+
+    def async_download(self, save_path, url, ref_url=None, **kwargs):
+        err_id, task_id = self._download_impl(save_path, url, ref_url)
+
+        progress_callback = kwargs.get('progress_callback', None)
+        success_callback = kwargs.get('success_callback', None)
+        error_callback = kwargs.get('error_callback', None)
+
+        if err_id != errors.SUCCESS:
+            if error_callback:
+                error_callback(task_id, url)
+            return False, task_id
+
+        thread = Thread(target=self._polling_for_download,
+                        args=(task_id, url),
+                        kwargs={'progress_callback': progress_callback,
+                                'success_callback': success_callback,
+                                'error_callback': error_callback})
+        thread.start()
+        return True, task_id
 
 
 def progressbar(percent, prefix='', size=30):
