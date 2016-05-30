@@ -93,17 +93,17 @@ class Thunder(object):
 
             elif status == errors.TASK_DOWNLOAD:
                 if progress_callback is not None:
-                    progress_callback(url, recv_size, file_size)
+                    progress_callback(task_id, url, recv_size, file_size)
 
             elif status == errors.TASK_SUCCESS:
                 self.stop_task(task_id)
                 if success_callback is not None:
-                    success_callback(url, file_size)
+                    success_callback(task_id, url, file_size)
                 return True, None
 
             elif status == errors.TASK_FAIL:
                 if error_callback is not None:
-                    error_callback(url)
+                    error_callback(task_id, url)
                 break
         self.stop_task(task_id)
         return False, None
@@ -152,7 +152,7 @@ def main():
     else:
         url = sys.argv[1]
 
-    def progress_cb(url, recv_size, file_size):
+    def progress_cb(task_id, url, recv_size, file_size):
         if file_size > 0:
             percent = float(recv_size) / float(file_size)
             progressbar(percent, 'Downloading: ')
